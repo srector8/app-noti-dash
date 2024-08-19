@@ -17,6 +17,9 @@ def main():
     # Ensure SEND_TIME is in datetime format
     df['SEND_TIME'] = pd.to_datetime(df['SEND_TIME'])
 
+    st.title("App Notifications Analysis")
+
+
     # Mapping of original TAGS_INCLUDED values to more user-friendly names
     tags_mapping = {
         'SEND2 I:END_QUARTER  IO:OR EO:OR': 'End of Quarter',
