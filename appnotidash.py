@@ -12,21 +12,28 @@ import pandas as pd
 import altair as alt
 
 def main():
-    # Load your dataset (replace 'your_dataset.csv' with your actual dataset path)
     df = pd.read_csv('appnotidata.csv')
 
     # Ensure SEND_TIME is in datetime format
     df['SEND_TIME'] = pd.to_datetime(df['SEND_TIME'])
 
-    # Streamlit app title
-    st.title("App Notifications Analysis")
+    # Mapping of original TAGS_INCLUDED values to more user-friendly names
+    tags_mapping = {
+        'SEND2 I:END_QUARTER  IO:OR EO:OR': 'End of Quarter',
+        'SEND2 I:START_GAME  IO:OR EO:OR': 'Start of Game',
+        'SEND2 I:END_GAME  IO:OR EO:OR': 'End of Game',
+        'SEND2 I:NEWS,START_GAME,END_QUARTER,END_GAME,TEAM_NEWS,NEWS E: IO:OR EO:OR': 'Experience Rating'
+    }
 
-    # Dropdown for TAGS_INCLUDED
-    tags = df['TAGS_INCLUDED'].unique()
-    selected_tag = st.selectbox("Select Notification Type", tags)
+    # Apply the mapping to the TAGS_INCLUDED column for the dropdown
+    df['TAG_LABEL'] = df['TAGS_INCLUDED'].map(tags_mapping)
 
-    # Filter data based on selected tag
-    filtered_df = df[df['TAGS_INCLUDED'] == selected_tag]
+    # Dropdown for TAG_LABEL
+    tags = df['TAG_LABEL'].unique()
+    selected_tag_label = st.selectbox("Select Notification Type", tags)
+
+    # Filter data based on selected tag label
+    filtered_df = df[df['TAG_LABEL'] == selected_tag_label]
 
     # Create the bar chart
     chart = alt.Chart(filtered_df).mark_bar().encode(
@@ -36,7 +43,7 @@ def main():
     ).properties(
         width=700,
         height=400,
-        title=f'Clicks Over Time for {selected_tag}'
+        title=f'Clicks Over Time for {selected_tag_label}'
     ).interactive()
 
     # Display the chart
