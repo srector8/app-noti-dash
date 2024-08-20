@@ -54,15 +54,17 @@ def main():
     daily_avg_clicks = filtered_df.resample('D', on='SEND_TIME')['CLICKS'].mean().mean()
     st.write(f"**Average Clicks per Day for {selected_tag_label}:** {daily_avg_clicks:.2f}")
 
-    # Create the bar chart for CLICKS
-    chart_clicks = alt.Chart(filtered_df).mark_bar().encode(
+    # Create the bar chart for Clickrate (mean per day)
+    clickrate_df = filtered_df.resample('D', on='SEND_TIME')['clickrate'].mean().reset_index()
+
+    chart_clickrate = alt.Chart(clickrate_df).mark_bar().encode(
         x=alt.X('SEND_TIME:T', title='Send Time'),
-        y=alt.Y('CLICKS:Q', title='Clicks'),
-        tooltip=['SEND_TIME', 'CLICKS']
+        y=alt.Y('clickrate:Q', title='Mean Clickrate'),
+        tooltip=['SEND_TIME', 'clickrate']
     ).properties(
         width=700,
         height=400,
-        title=f'Clicks Over Time for {selected_tag_label}'
+        title=f'Mean Clickrate Over Time for {selected_tag_label}'
     ).interactive()
 
     # Display the clickrate chart
