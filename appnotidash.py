@@ -52,6 +52,10 @@ def main():
     # Display the chart
     st.altair_chart(chart)
 
+    # Calculate and display average clicks per day
+    daily_avg_clicks = filtered_df.resample('D', on='SEND_TIME')['CLICKS'].mean().mean()
+    st.write(f"**Average Clicks per Day for {selected_tag_label}:** {daily_avg_clicks:.2f}")
+
 # Run the main function
 if __name__ == "__main__":
     main()
