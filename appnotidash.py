@@ -12,13 +12,11 @@ import pandas as pd
 import altair as alt
 
 def main():
-    df = pd.read_csv('appnotidata.csv')
+    # Load your dataset (replace 'your_dataset.csv' with your actual dataset path)
+    df = pd.read_csv('appnotidata2.csv')
 
     # Ensure SEND_TIME is in datetime format
     df['SEND_TIME'] = pd.to_datetime(df['SEND_TIME'])
-
-    st.title("App Notifications Analysis")
-
 
     # Mapping of original TAGS_INCLUDED values to more user-friendly names
     tags_mapping = {
@@ -38,8 +36,8 @@ def main():
     # Filter data based on selected tag label
     filtered_df = df[df['TAG_LABEL'] == selected_tag_label]
 
-    # Create the bar chart
-    chart = alt.Chart(filtered_df).mark_bar().encode(
+    # Create the bar chart for CLICKS
+    chart_clicks = alt.Chart(filtered_df).mark_bar().encode(
         x=alt.X('SEND_TIME:T', title='Send Time'),
         y=alt.Y('CLICKS:Q', title='Clicks'),
         tooltip=['SEND_TIME', 'CLICKS']
@@ -49,12 +47,32 @@ def main():
         title=f'Clicks Over Time for {selected_tag_label}'
     ).interactive()
 
-    # Display the chart
-    st.altair_chart(chart)
+    # Display the clicks chart
+    st.altair_chart(chart_clicks)
 
     # Calculate and display average clicks per day
     daily_avg_clicks = filtered_df.resample('D', on='SEND_TIME')['CLICKS'].mean().mean()
     st.write(f"**Average Clicks per Day for {selected_tag_label}:** {daily_avg_clicks:.2f}")
+
+    # Create the line chart for Clickrate (mean per day)
+    clickrate_df = filtered_df.resample('D', on='SEND_TIME')['clickrate'].mean().reset_index()
+
+    chart_clickrate = alt.Chart(clickrate_df).mark_line(point=True).encode(
+        x=alt.X('SEND_TIME:T', title='Send Time'),
+        y=alt.Y('clickrate:Q', title='Mean Clickrate'),
+        tooltip=['SEND_TIME', 'clickrate']
+    ).properties(
+        width=700,
+        height=400,
+        title=f'Mean Clickrate Over Time for {selected_tag_label}'
+    ).interactive()
+
+    # Display the clickrate chart
+    st.altair_chart(chart_clickrate)
+
+    # Calculate and display overall mean clickrate
+    overall_mean_clickrate = clickrate_df['clickrate'].mean()
+    st.write(f"**Overall Mean Clickrate for {selected_tag_label}:** {overall_mean_clickrate:.2f}")
 
 # Run the main function
 if __name__ == "__main__":
